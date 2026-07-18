@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>NexuTem</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; margin: 0; background-color: #e5ddd5; }
+        #messages { list-style-type: none; margin: 0; padding: 15px; flex-grow: 1; overflow-y: auto; }
+        #messages li { padding: 8px 12px; margin-bottom: 8px; border-radius: 10px; background: #fff; max-width: 80%; word-wrap: break-word; }
+        .input-area { padding: 10px; background: #f0f0f0; display: flex; gap: 10px; }
+        input { flex-grow: 1; padding: 10px; border-radius: 20px; border: 1px solid #ccc; outline: none; }
+        button { padding: 10px 20px; background: #075e54; color: white; border: none; border-radius: 20px; }
+    </style>
+</head>
+<body>
+    <ul id="messages"></ul>
+    <div class="input-area">
+        <input id="input" placeholder="Сообщение..." />
+        <button id="send">Отправить</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const username = prompt("Как тебя зовут?") || "Аноним";
+        const input = document.getElementById('input');
+        const button = document.getElementById('send');
+        const messages = document.getElementById('messages');
+
+        button.onclick = () => {
+            if (input.value.trim()) {
+                socket.emit('chat message', { user: username, text: input.value });
+                input.value = '';
+            }
+        };
+
+        socket.on('chat message', (data) => {
+            const item = document.createElement('li');
+            item.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
+            messages.appendChild(item);
+            messages.scrollTop = messages.scrollHeight;
+        });
+    </script>
+</body>
+</html>
